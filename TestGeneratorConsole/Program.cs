@@ -12,7 +12,7 @@ namespace TestGeneratorConsole
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             string DestinationPath = @"D:\Works C#\спп лаба 4\MPPTestGenerator\Samples\GeneratedTests";
             string SourcePath = @"D:\Works C#\спп лаба 4\MPPTestGenerator\Samples\SourceClasses";
@@ -20,7 +20,7 @@ namespace TestGeneratorConsole
             if (!Directory.Exists(DestinationPath))
                 Directory.CreateDirectory(DestinationPath);
 
-            new Pipeline().Generate(DestinationPath, SourcePath).GetAwaiter().GetResult();
+            await new Pipeline().Generate(DestinationPath, SourcePath);
         }
     }
 
