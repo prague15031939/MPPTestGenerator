@@ -14,25 +14,32 @@ namespace TestGen
         private AttributeSyntax TestSetupAttribute = SyntaxFactory.Attribute(SyntaxFactory.ParseName("TestInitialize"));
         private AttributeSyntax TestClassAttribute = SyntaxFactory.Attribute(SyntaxFactory.ParseName("TestClass"));
 
-        public TestInfo Generate(string SourceCode)
+        public TestInfo[] Generate(string SourceCode)
         {
             SyntaxNode TreeRoot = CSharpSyntaxTree.ParseText(SourceCode).GetRoot();
-            var FileName = TreeRoot.DescendantNodes().OfType<ClassDeclarationSyntax>().First().Identifier.ValueText;
-            var methods = TreeRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(method => method.Modifiers.Any(SyntaxKind.PublicKeyword));
+            List<TestInfo> result = new List<TestInfo>();
 
-            NamespaceDeclarationSyntax NamespaceItem = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName("UnitTests"));
-            ClassDeclarationSyntax ClassItem = SyntaxFactory.ClassDeclaration($"{FileName}Test").
-                AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword)).
-                AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.AttributeList().Attributes.Add(TestClassAttribute)));
+            foreach (var SourceClass in TreeRoot.DescendantNodes().OfType<ClassDeclarationSyntax>())
+            {
+                string ClassName = SourceClass.Identifier.ValueText;
+                var methods = SourceClass.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(method => method.Modifiers.Any(SyntaxKind.PublicKeyword));
 
-            var unit = SyntaxFactory.CompilationUnit().
-                AddUsings(FormUsings(TreeRoot)).
-                AddMembers(NamespaceItem.
-                AddMembers(ClassItem.
-                AddMembers(FormMethods(methods)
-            )));
+                NamespaceDeclarationSyntax NamespaceItem = SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName("UnitTests"));
+                ClassDeclarationSyntax ClassItem = SyntaxFactory.ClassDeclaration($"{ClassName}Test").
+                    AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword)).
+                    AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.AttributeList().Attributes.Add(TestClassAttribute)));
 
-            return new TestInfo() { FileName = $"{FileName}Test.cs", TestCode = unit.NormalizeWhitespace().ToFullString() };
+                var unit = SyntaxFactory.CompilationUnit().
+                    AddUsings(FormUsings(TreeRoot)).
+                    AddMembers(NamespaceItem.
+                    AddMembers(ClassItem.
+                    AddMembers(FormMethods(methods)
+                )));
+
+                result.Add(new TestInfo() { FileName = $"{ClassName}Test.cs", TestCode = unit.NormalizeWhitespace().ToFullString() });
+            }
+
+            return result.ToArray();
         }
 
         private MethodDeclarationSyntax[] FormMethods(IEnumerable<MethodDeclarationSyntax> methods)

@@ -38,9 +38,10 @@ namespace TestGeneratorConsole
                     ExecutionOptions              
                 );
 
-            TransformBlock<string, TestInfo> GenerateTests = new TransformBlock<string, TestInfo>
+            TransformManyBlock<string, TestInfo> GenerateTests = new TransformManyBlock<string, TestInfo>
                 (
-                    async code => await Task.Run(() => generator.Generate(code))
+                    async code => await Task.Run(() => generator.Generate(code)),
+                    ExecutionOptions
                 ); 
             ActionBlock<TestInfo> WritebackFile = new ActionBlock<TestInfo>
                 (
