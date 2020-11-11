@@ -53,8 +53,8 @@ namespace UnitTests
                 GetRoot().DescendantNodes().OfType<UsingDirectiveSyntax>().
                 Select(item => item.Name.ToString()).ToArray();
 
-            Assert.AreEqual(ActualNamespaces.Length, 5);
-            string[] ExpectedUsings = { "System", "System.Diagnostics", "System.Threading", "System.Collections.Generic", "Microsoft.VisualStudio.TestTools.UnitTesting" };
+            Assert.AreEqual(ActualNamespaces.Length, 6);
+            string[] ExpectedUsings = { "System", "System.Diagnostics", "System.Threading", "System.Collections.Generic", "Microsoft.VisualStudio.TestTools.UnitTesting", "Tracer" };
             for (int i = 0; i < ExpectedUsings.Length; i++)
                 Assert.AreEqual(ExpectedUsings[i], ActualNamespaces[i]);
         }
@@ -100,7 +100,8 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestOtherMethods() {
+        public void TestOtherMethods() 
+        {
             var methods = CSharpSyntaxTree.ParseText(result[1].TestCode).
                 GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>();
 

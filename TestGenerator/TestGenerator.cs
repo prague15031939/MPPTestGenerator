@@ -70,8 +70,10 @@ namespace TestGen
 
         private UsingDirectiveSyntax[] FormUsings(SyntaxNode root)
         {
+            string SourceNamespace = root.DescendantNodes().OfType<NamespaceDeclarationSyntax>().Single().Name.ToString();
             return root.DescendantNodes().OfType<UsingDirectiveSyntax>().
                 Append(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName("Microsoft.VisualStudio.TestTools.UnitTesting"))).
+                Append(SyntaxFactory.UsingDirective(SyntaxFactory.ParseName(SourceNamespace))).
                 ToArray();
         }
     }
